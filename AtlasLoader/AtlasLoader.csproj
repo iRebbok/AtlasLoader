@@ -1,0 +1,103 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{C1256921-8467-44B9-B9A8-1D1EAE10B43A}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Atlas</RootNamespace>
+    <AssemblyName>Atlas</AssemblyName>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <LangVersion>7.3</LangVersion>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\Atlas.xml</DocumentationFile>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <OutputPath>bin\Release\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <OutputPath>bin\Debug\</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Core\IModule.cs" />
+    <Compile Include="Core\Log\Logger.cs" />
+    <Compile Include="Core\Log\LogMessage.cs" />
+    <Compile Include="Core\Log\LogSeverity.cs" />
+    <Compile Include="Core\CoreModule.cs" />
+    <Compile Include="Core\ExtensionMethods.cs" />
+    <Compile Include="Core\Mods\IModChild.cs" />
+    <Compile Include="Core\Mods\LogProvider.cs" />
+    <Compile Include="Core\Mods\MetadataAttribute.cs" />
+    <Compile Include="Core\Mods\Mod.cs" />
+    <Compile Include="Core\Mods\ModLoadInfo.cs" />
+    <Compile Include="Core\Mods\ModPreloadInfo.cs" />
+    <Compile Include="Core\Module.cs" />
+    <Compile Include="Core\ModulePriorityAttribute.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Athene, Version=3.0.1.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\Athene.3.0.1\lib\netstandard2.0\Athene.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Athene.Components.Contexts, Version=3.0.1.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\Athene.Components.Contexts.3.0.1\lib\netstandard2.0\Athene.Components.Contexts.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Athene.Components.Interpolators, Version=3.0.1.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\Athene.Components.Interpolators.3.0.1\lib\netstandard2.0\Athene.Components.Interpolators.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Athene.Components.Tokenizers, Version=3.0.1.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\Athene.Components.Tokenizers.3.0.1\lib\netstandard2.0\Athene.Components.Tokenizers.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Athene.Extensions, Version=3.0.1.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\Athene.Extensions.3.0.1\lib\netstandard2.0\Athene.Extensions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Athene.Parameters, Version=3.0.1.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\Athene.Parameters.3.0.1\lib\netstandard2.0\Athene.Parameters.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="dnlib, Version=3.3.1.0, Culture=neutral, PublicKeyToken=50e96378b6e77999">
+      <HintPath>..\packages\dnlib.3.3.1\lib\net45\dnlib.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Synergize, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\Synergize.0.1.0\lib\net452\Synergize.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\packages\MSBuildTasks.1.5.0.235\build\MSBuildTasks.targets" Condition="Exists('..\packages\MSBuildTasks.1.5.0.235\build\MSBuildTasks.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105.The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\MSBuildTasks.1.5.0.235\build\MSBuildTasks.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\MSBuildTasks.1.5.0.235\build\MSBuildTasks.targets'))" />
+  </Target>
+  <Target Name="BeforeBuild">
+    <AssemblyInfo CodeLanguage="CS" OutputFile="$(MSBuildProjectDirectory)\Properties\AssemblyInfo.cs" AssemblyTitle="Atlas" AssemblyDescription="A modding framework for .NET applications." AssemblyConfiguration="" AssemblyCompany="Ashe" AssemblyProduct="Atlas" AssemblyCopyright="Copyright © Ashe 2019" AssemblyTrademark="" Guid="C1256921-8467-44B9-B9A8-1D1EAE10B43A" AssemblyVersion="$(VersionNumber)" AssemblyFileVersion="$(VersionNumber)" />
+  </Target>
+</Project>
