@@ -39,7 +39,7 @@ namespace AtlasLoader.CLI
 
     class Program
     {
-        static WorkMode _workMode;
+        static WorkMode? _workMode = null;
 
         static void Main()
         {
@@ -89,6 +89,9 @@ namespace AtlasLoader.CLI
                     break;
                 case WorkMode.Publicizer:
                     Publicizer.Start(args);
+                    break;
+                default:
+                    Helper.WriteLine("Invalid work mode given", ConsoleColor.Red);
                     break;
             }
 

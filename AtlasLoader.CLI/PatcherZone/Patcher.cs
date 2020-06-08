@@ -228,7 +228,7 @@ namespace AtlasLoader.CLI
                 Helper.WriteVerbose($"Input: {input}", ConsoleColor.Yellow);
                 _input = input;
                 Helper.WriteVerbose($"Written output: {output}", ConsoleColor.Yellow);
-                _output = !string.IsNullOrEmpty(output) ? output : $"{Path.GetFileNameWithoutExtension(input)}_publicized{Path.GetExtension(input)}";
+                _output = !string.IsNullOrEmpty(output) ? output : $"{Path.GetFileNameWithoutExtension(input)}{Path.GetExtension(input)}";
                 Helper.WriteVerbose($"Final output: {_output}", ConsoleColor.Yellow);
             });
 
