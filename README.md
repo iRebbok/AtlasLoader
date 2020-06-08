@@ -12,6 +12,8 @@
 - A tool to create a copy of an assembly in which all members are public (types, methods, fields, getters and setters of properties).
 - [GitHub](https://github.com/CabbageCrow/AssemblyPublicizer)
 
+**CoreRT doesn't support the dynamic library loading API, so a fully native patch will not work.**
+
 ### What is it for?
 **To load mods into SCP: SL, but mainly for [SMBootstrapper](https://gitlab.com/iRebbok/SMBootstrapper).**
 
