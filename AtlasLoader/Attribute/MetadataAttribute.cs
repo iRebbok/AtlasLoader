@@ -3,10 +3,10 @@ using System;
 namespace AtlasLoader
 {
     /// <summary>
-    ///     Provides additional info on a Atlas mod.
+    ///     Provides additional info on a AtlasLoader mod.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class, Inherited = false)]
-    public class MetadataAttribute : Attribute
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+    public sealed class MetadataAttribute : Attribute
     {
         /// <summary>
         ///     The creator(s) of the mod.

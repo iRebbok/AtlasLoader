@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+    <PropertyGroup>
+        <RootNamespace>AtlasLoader</RootNamespace>
+    </PropertyGroup>
+
+	<PropertyGroup>
+        <Copyright>Copyright 2020 - $([System.DateTime]::Now.ToString("yyyy"))</Copyright>
+        <LangVersion>8.0</LangVersion>
+        <Nullable>enable</Nullable>
+        <NoWarn>$(NoWarn);CS1573;CS1591</NoWarn>
+        <WarningsAsErrors>true</WarningsAsErrors>
+
+        <!-- Disable automatic generation of version attribute -->
+        <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
+        <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
+        <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+    </PropertyGroup>
+
+
+</Project>

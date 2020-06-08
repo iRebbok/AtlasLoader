@@ -12,6 +12,7 @@ namespace AtlasLoader
         /// </summary>
         public string Id { get; }
 
+
         /// <summary>
         ///     The version of a mod, determined by the assembly version.
         /// </summary>
@@ -25,7 +26,6 @@ namespace AtlasLoader
         /// <summary>
         ///     Constructs an instance of <see cref="ModLoadInfo" />.
         /// </summary>
-        /// <param name="id">The unique ID of the mod.</param>
         /// <param name="version">The version of the mod.</param>
         /// <param name="metadata">The self-appointed metadata of the mod.</param>
         /// <exception cref="ArgumentNullException"><paramref name="id" /> or <paramref name="metadata" /> is <see langword="null"/>.</exception>

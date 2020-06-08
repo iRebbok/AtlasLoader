@@ -352,6 +352,3 @@ MigrationBackup/
 # To-deploy files
 [Dd]eploy*/
 
-# Application Targetted Extension References
-Atlas.Extensions.*/References/
-Atlas.Patcher.*/References/

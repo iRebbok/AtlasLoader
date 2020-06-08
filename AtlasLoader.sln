@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.28822.285
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AtlasLoader", "AtlasLoader\AtlasLoader.csproj", "{C1256921-8467-44B9-B9A8-1D1EAE10B43A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AtlasLoader.Patcher", "AtlasLoader.Patcher\AtlasLoader.Patcher.csproj", "{DDBA0843-72CC-4A95-A631-DF617BBA5323}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AtlasLoader.CLI", "AtlasLoader.CLI\AtlasLoader.CLI.csproj", "{DDBA0843-72CC-4A95-A631-DF617BBA5323}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
