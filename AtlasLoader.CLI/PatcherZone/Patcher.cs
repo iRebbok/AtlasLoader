@@ -383,7 +383,7 @@ namespace AtlasLoader.CLI
             initMethod.CustomAttributes.Add(new CustomAttribute(patchedAttributeCtor,
                 new[]
                 {
-                    new CAArgument(initMethod.Module.CorLibTypes.String, "1.0.0"), new CAArgument(initMethod.Module.CorLibTypes.Int32, ILIndex),
+                    new CAArgument(initMethod.Module.CorLibTypes.String, CoreModule.VERSION), new CAArgument(initMethod.Module.CorLibTypes.Int32, ILIndex),
                     new CAArgument(initMethod.Module.CorLibTypes.Int32, index)
                 }));
         }
@@ -415,18 +415,19 @@ namespace AtlasLoader.CLI
 
         private static class slPayload
         {
+#nullable disable
             internal static void atlasLoaderBootstrap()
             {
                 Debug.Log("Bootstrapping AtlasLoader...");
 
                 try
                 {
-                    MethodInfo? bootstrap = null;
+                    MethodInfo bootstrap = null;
                     foreach (string file in Directory.GetFiles(loaderPath, "*.dll"))
                     {
                         Debug.Log($"Loading {file}...");
 
-                        Assembly? assembly = null;
+                        Assembly assembly = null;
                         try
                         { assembly = Assembly.Load(File.ReadAllBytes(file)); }
                         catch (IOException e)
@@ -434,19 +435,19 @@ namespace AtlasLoader.CLI
                         catch (BadImageFormatException e)
                         { Debug.Log($"Failed loader file: {file}"); Debug.LogException(e); }
 
-                        if (!(bootstrap is null) || assembly is null)
+                        if (bootstrap != null || assembly == null)
                             continue;
 
-                        Type? core = assembly.GetType(coreModuleFullTypeName);
-                        if (core is null)
+                        Type core = assembly.GetType(coreModuleFullTypeName);
+                        if (core == null)
                             continue;
 
                         bootstrap = core.GetMethod(coreModuleBootstrapMethodName, coreModuleBootstrapBinding);
-                        if (bootstrap is null)
+                        if (bootstrap == null)
                             throw new MissingMethodException($"The {coreModuleBootstrapMethodName} method of {coreModuleFullTypeName} does not exist.");
                     }
 
-                    if (bootstrap is null)
+                    if (bootstrap == null)
                         throw new MissingMethodException("The bootstrap method was not found.");
 
                     bootstrap.Invoke(null, null);
@@ -461,6 +462,7 @@ namespace AtlasLoader.CLI
 
                 Debug.Log("Successfully bootstrapped AtlasLoader.");
             }
+#nullable restore
         }
     }
 }
