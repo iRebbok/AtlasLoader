@@ -25,41 +25,37 @@ namespace AtlasLoader
         /// </summary>
         public const string TimeFormat = "yyyy-MM-dd HH-mm-ss-fff";
 
-        private static readonly StreamWriter? MessageWriter;
-        private static readonly Stack<LogMessage>? MessageBuffer;
+        private static readonly StreamWriter MessageWriter;
+        private static readonly Stack<LogMessage> MessageBuffer;
 
         /// <summary>
         /// 	The path to the log file.
         /// </summary>
-        public static string? LogPath { get; }
+        public static string LogPath { get; }
 
         /// <summary>
         /// 	The past messages in order of most recent to least recent.
         /// </summary>
-        public static IEnumerable<LogMessage> Messages => MessageBuffer!;
+        public static IEnumerable<LogMessage> Messages => MessageBuffer;
 
         /// <summary>
         /// 	The count of <seealso cref="Messages"/>.
         /// </summary>
-        public static int MessageCount => MessageBuffer!.Count;
+        public static int MessageCount => MessageBuffer.Count;
 
         static Logger()
         {
             if (!Directory.Exists(LogsDirectory))
-            {
                 Directory.CreateDirectory(LogsDirectory);
-            }
             else
-            {
                 CompressLatest();
 
-                LogPath = GetFilePath(DateTime.Now);
-                MessageWriter = new StreamWriter(new FileStream(LogPath, FileMode.CreateNew, FileAccess.Write, FileShare.Read))
-                {
-                    AutoFlush = true
-                };
-                MessageBuffer = new Stack<LogMessage>(500);
-            }
+            LogPath = GetFilePath(DateTime.Now);
+            MessageWriter = new StreamWriter(new FileStream(LogPath, FileMode.CreateNew, FileAccess.Write, FileShare.Read))
+            {
+                AutoFlush = true
+            };
+            MessageBuffer = new Stack<LogMessage>(500);
         }
 
         private static void CompressLatest()
