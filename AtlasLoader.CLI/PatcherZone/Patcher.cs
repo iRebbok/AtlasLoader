@@ -354,6 +354,9 @@ namespace AtlasLoader.CLI
                     break;
             }
 
+            if (_mode == PatcherMode.Info)
+                return;
+
             var patchedDirectory = Path.GetDirectoryName(_output);
             Helper.WriteVerbose($"Patched result directory: {patchedDirectory}");
             if (!string.IsNullOrEmpty(patchedDirectory) && !Directory.Exists(patchedDirectory))
