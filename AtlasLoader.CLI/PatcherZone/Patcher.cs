@@ -9,6 +9,8 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
+using MethodAttributes = dnlib.DotNet.MethodAttributes;
+
 namespace AtlasLoader.CLI
 {
     public enum PatcherMode
@@ -144,7 +146,7 @@ namespace AtlasLoader.CLI
 
         static void EjectAllTypes() => EjectAllTypes(type => type.CustomAttributes.Any(x => x.TypeFullName == injectedAttribute.FullName));
 
-        static void InjectAllMembers(TypeDef source, TypeDef target, Func<IMemberDef, bool> predicate)
+        static void InjectAllMembers(TypeDef source, TypeDef target, Func<IMemberDef, bool> predicate, bool makeMethodsProvate = true)
         {
             bool NewPredicate(IMemberDef member)
             {
@@ -186,6 +188,9 @@ namespace AtlasLoader.CLI
                 {
                     return false;
                 }
+
+                if (makeMethodsProvate)
+                    method.Access = MethodAttributes.Private;
 
                 if (NewPredicate(method))
                 {
