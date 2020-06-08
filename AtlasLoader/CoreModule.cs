@@ -141,11 +141,11 @@ namespace AtlasLoader
             ModLoadInfo loadInfo = new ModLoadInfo(mainAttribute.Id, assembly.GetName().Version.ToString(),
                 modType.GetCustomAttribute<MetadataAttribute>() ?? new MetadataAttribute());
 
-            ConstructorInfo ctor = modType.GetConstructor(new[] { typeof(ModLoadInfo) });
-            if (ctor == null)
+            var ctor = modType.GetConstructor(new[] { typeof(ModLoadInfo) });
+            if (ctor is null)
                 throw new ArgumentException("Standard constructor not found.");
 
-            Mod mod;
+            Mod? mod;
             try
             {
                 mod = ctor.Invoke(new object[] { loadInfo }) as Mod;
@@ -155,7 +155,7 @@ namespace AtlasLoader
                 throw new TargetInvocationException("Unhandled exception during construction.", e);
             }
 
-            LoadMod(mod);
+            LoadMod(mod!);
 
             Logger.AtlasDebug(nameof(CoreModule), $"Loaded {assembly}.");
         }

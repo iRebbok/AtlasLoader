@@ -11,16 +11,16 @@ namespace AtlasLoader
         /// <summary>
         ///     The creator(s) of the mod.
         /// </summary>
-        public string[] Authors { get; }
+        public string[]? Authors { get; }
 
         /// <summary>
         ///     The description of what the mod does.
         /// </summary>
-        public string Description { get; }
+        public string? Description { get; }
         /// <summary>
         ///     The human-readable name of the mod.
         /// </summary>
-        public string Name { get; }
+        public string? Name { get; }
 
         /// <summary>
         ///     Constructs an instance of <see cref="MetadataAttribute" />.
@@ -28,7 +28,7 @@ namespace AtlasLoader
         /// <param name="name">The human-readable name of the mod.</param>
         /// <param name="description">A description of the purpose of the mod.</param>
         /// <param name="authors">The names or aliases of the authors of the mod.</param>
-        public MetadataAttribute(string name = null, string description = null, params string[] authors)
+        public MetadataAttribute(string? name = null, string? description = null, params string[]? authors)
         {
             Name = name;
             Description = description;

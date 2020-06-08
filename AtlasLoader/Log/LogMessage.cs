@@ -99,7 +99,7 @@ namespace AtlasLoader
         /// <param name="format">The collection of <seealso cref="Format" /> flags that specify what data should be included.</param>
         public string ToString(Format format)
         {
-            string result = null;
+            string? result = null;
             foreach (Format possibleFormat in Formats)
             {
                 if (!format.HasFlag(possibleFormat))
@@ -110,20 +110,20 @@ namespace AtlasLoader
                 switch (possibleFormat)
                 {
                     case Format.Severity:
-                        result = AddSpaced(result, $"[{Severity}]");
+                        result = AddSpaced(result!, $"[{Severity}]");
                         break;
 
                     case Format.Source:
-                        result = AddSpaced(result, $"[{Source}]");
+                        result = AddSpaced(result!, $"[{Source}]");
                         break;
 
                     case Format.Message:
-                        result = AddSpaced(result, Message);
+                        result = AddSpaced(result!, Message);
                         break;
                 }
             }
 
-            return result;
+            return result!;
         }
     }
 }

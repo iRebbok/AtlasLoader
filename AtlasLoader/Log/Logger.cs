@@ -25,23 +25,23 @@ namespace AtlasLoader
         /// </summary>
         public const string TimeFormat = "yyyy-MM-dd HH-mm-ss-fff";
 
-        private static readonly StreamWriter MessageWriter;
-        private static readonly Stack<LogMessage> MessageBuffer;
+        private static readonly StreamWriter? MessageWriter;
+        private static readonly Stack<LogMessage>? MessageBuffer;
 
         /// <summary>
         /// 	The path to the log file.
         /// </summary>
-        public static string LogPath { get; }
+        public static string? LogPath { get; }
 
         /// <summary>
         /// 	The past messages in order of most recent to least recent.
         /// </summary>
-        public static IEnumerable<LogMessage> Messages => MessageBuffer;
+        public static IEnumerable<LogMessage> Messages => MessageBuffer!;
 
         /// <summary>
         /// 	The count of <seealso cref="Messages"/>.
         /// </summary>
-        public static int MessageCount => MessageBuffer.Count;
+        public static int MessageCount => MessageBuffer!.Count;
 
         static Logger()
         {
@@ -64,12 +64,9 @@ namespace AtlasLoader
 
         private static void CompressLatest()
         {
-            FileStream latest = GetLatestUnlocked(out string path);
-
-            if (latest == null)
-            {
+            FileStream? latest = GetLatestUnlocked(out string? path);
+            if (latest is null)
                 return;
-            }
 
             using (latest)
             {
@@ -93,7 +90,7 @@ namespace AtlasLoader
             return LogsDirectory + time.ToString(TimeFormat) + "." + FileExtension;
         }
 
-        private static FileStream GetLatestUnlocked(out string path)
+        private static FileStream? GetLatestUnlocked(out string? path)
         {
             foreach (string file in Directory.EnumerateFiles(LogsDirectory, "*." + FileExtension))
             {
@@ -261,6 +258,6 @@ namespace AtlasLoader
         /// <summary>
         ///     Fired when a message is logged.
         /// </summary>
-        public static event Action<LogMessage> Invoked;
+        public static event Action<LogMessage>? Invoked;
     }
 }
