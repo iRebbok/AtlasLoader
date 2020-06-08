@@ -7,7 +7,7 @@ namespace AtlasLoader.CLI
     public sealed class PatchedAttribute : Attribute
     {
         [InjectorIgnored]
-        public static PatchedAttribute? Create(CustomAttribute attribute) =>
+        public static PatchedAttribute Create(CustomAttribute attribute) =>
             attribute == null
                 ? null
                 : new PatchedAttribute((UTF8String) attribute.ConstructorArguments[0].Value,

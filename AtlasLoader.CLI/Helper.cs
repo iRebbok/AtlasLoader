@@ -43,7 +43,7 @@ namespace AtlasLoader.CLI
             Environment.Exit((int) errCode);
         }
 
-        public static byte[]? ReadAssembly(string? path)
+        public static byte[] ReadAssembly(string path)
         {
             WriteVerbose($"Reading assembly from: {path}");
             if (string.IsNullOrEmpty(path) || !File.Exists(path))
@@ -60,7 +60,7 @@ namespace AtlasLoader.CLI
             }
 
             WriteVerbose("Trying read assembly");
-            byte[]? assembly = null;
+            byte[] assembly = null;
             try { assembly = File.ReadAllBytes(path); }
             catch (IOException e)
             {

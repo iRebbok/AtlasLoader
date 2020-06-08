@@ -53,7 +53,7 @@ namespace AtlasLoader.CLI
             }
 
             var globalArgs = Options.GetGobalOptions();
-            globalArgs.Handler = CommandHandler.Create<string, bool, bool, DirectoryInfo, IEnumerable<string>?>((workMode, exit, verbose, path, dependencies) =>
+            globalArgs.Handler = CommandHandler.Create<string, bool, bool, DirectoryInfo, IEnumerable<string>>((workMode, exit, verbose, path, dependencies) =>
             {
                 Helper.needVerbose = verbose;
                 Helper.WriteVerbose("Verbose activated", ConsoleColor.Magenta);
@@ -101,7 +101,7 @@ namespace AtlasLoader.CLI
 
         static void LocalDependencies(IEnumerable<string> dependencies)
         {
-            foreach (string dependency in dependencies!)
+            foreach (string dependency in dependencies)
             {
                 string fullDependency = Path.GetFullPath(dependency);
                 Helper.WriteVerbose($"Dependency full path: {fullDependency}");
@@ -115,7 +115,7 @@ namespace AtlasLoader.CLI
                     Helper.WriteVerbose("Dependency is a folder");
                     Dictionary<string, Assembly> nameAssemblies = Directory.GetFiles(fullDependency, "*.dll").Select(x => Assembly.Load(File.ReadAllBytes(x)))
                         .ToDictionary(x => x.GetName().FullName, x => x);
-                    AppDomain.CurrentDomain.AssemblyResolve += (sender, eventArgs) => nameAssemblies.TryGetValue(eventArgs.Name!, out Assembly? assembly) ? assembly : null;
+                    AppDomain.CurrentDomain.AssemblyResolve += (sender, eventArgs) => nameAssemblies.TryGetValue(eventArgs.Name, out Assembly assembly) ? assembly : null;
                 }
                 else
                 {

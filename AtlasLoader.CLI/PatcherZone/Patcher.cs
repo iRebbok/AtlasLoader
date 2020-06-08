@@ -44,9 +44,9 @@ namespace AtlasLoader.CLI
         const int ILIndex = 0;
 
         // the method that will be patched
-        static MethodDef? initMethod;
+        static MethodDef initMethod;
         // assembly-csharp itself
-        static ModuleDef? module;
+        static ModuleDef module;
 
         static Patcher()
         {
@@ -127,9 +127,9 @@ namespace AtlasLoader.CLI
 
         static void EjectAllTypes(Func<TypeDef, bool> predicate)
         {
-            for (int i = 0; i < module!.Types.Count;)
+            for (int i = 0; i < module.Types.Count;)
             {
-                TypeDef type = module!.Types[i];
+                TypeDef type = module.Types[i];
 
                 if (predicate(type))
                 {
@@ -213,14 +213,14 @@ namespace AtlasLoader.CLI
 
         #endregion
 
-        static string? _input;
-        static string? _output;
+        static string _input;
+        static string _output;
         static PatcherMode? _mode = null;
 
         public static void Start(string[] args)
         {
             var baseArgs = Options.GetPatcherOptions();
-            baseArgs.Handler = CommandHandler.Create<string, string?, string>((input, output, patcherMode) =>
+            baseArgs.Handler = CommandHandler.Create<string, string, string>((input, output, patcherMode) =>
             {
                 Helper.WriteVerbose($"Written pather mode: {patcherMode}");
                 _mode = Enum.Parse<PatcherMode>(patcherMode, true);
@@ -242,7 +242,7 @@ namespace AtlasLoader.CLI
             Helper.WriteVerbose($"Search for the desired class with a name: {typeToPatch}");
             var type = module.GetTypes().FirstOrDefault(t => t.Name.Equals(typeToPatch));
             Helper.WriteVerbose($"The found class is null: {type is null}");
-            MethodDef? method = null;
+            MethodDef method = null;
             if (!(type is null))
             {
                 Helper.WriteVerbose($"Search for the desired method with a name: {methodToPath}");
@@ -271,7 +271,7 @@ namespace AtlasLoader.CLI
                     }
 
                     Helper.WriteLine("Acquired patch info:", ConsoleColor.Green);
-                    Helper.WriteLine($"- Version: {info!.Version}{Environment.NewLine}" +
+                    Helper.WriteLine($"- Version: {info.Version}{Environment.NewLine}" +
                                 $"- Start index: {info.StartIndex}{Environment.NewLine}" +
                                 $"- End index: {info.EndIndex}{Environment.NewLine}");
                     break;
@@ -364,7 +364,7 @@ namespace AtlasLoader.CLI
             EjectAllMembers(type, member => member.CustomAttributes.Any(x => x.AttributeType == ignoredAttribute));
 
             type.Module.Types.Remove(type);
-            module!.Types.Add(type);
+            module.Types.Add(type);
 
             type.CustomAttributes.Add(new CustomAttribute(injectedAttributeCtor));
         }
@@ -376,7 +376,7 @@ namespace AtlasLoader.CLI
 
             int index = ILIndex;
 
-            InjectAllMembers(modMethod!.DeclaringType, initMethod!.DeclaringType);
+            InjectAllMembers(modMethod.DeclaringType, initMethod.DeclaringType);
 
             initMethod.Body.Instructions.Insert(index++, OpCodes.Call.ToInstruction(modMethod));
 
@@ -390,12 +390,12 @@ namespace AtlasLoader.CLI
 
         static void Unpatch()
         {
-            PatchedAttribute? patchInfo = Info();
+            PatchedAttribute patchInfo = Info();
             if (patchInfo is null)
                 return;
 
             EjectAllTypes();
-            EjectAllMembers(initMethod!.DeclaringType);
+            EjectAllMembers(initMethod.DeclaringType);
 
             int length = patchInfo.EndIndex - patchInfo.StartIndex;
             for (int i = 0; i < length; i++)
@@ -406,7 +406,7 @@ namespace AtlasLoader.CLI
             initMethod.CustomAttributes.Remove(initMethod.CustomAttributes.FirstOrDefault(x => x.TypeFullName == patchedAttribute.FullName));
         }
 
-        static PatchedAttribute? Info() => PatchedAttribute.Create(initMethod!.CustomAttributes.FirstOrDefault(x => x.TypeFullName == patchedAttribute.FullName));
+        static PatchedAttribute Info() => PatchedAttribute.Create(initMethod.CustomAttributes.FirstOrDefault(x => x.TypeFullName == patchedAttribute.FullName));
 
         const BindingFlags coreModuleBootstrapBinding = BindingFlags.NonPublic | BindingFlags.Static;
         const string coreModuleBootstrapMethodName = "Initializer";
@@ -415,7 +415,6 @@ namespace AtlasLoader.CLI
 
         private static class slPayload
         {
-#nullable disable
             internal static void atlasLoaderBootstrap()
             {
                 Debug.Log("Bootstrapping AtlasLoader...");
@@ -462,7 +461,6 @@ namespace AtlasLoader.CLI
 
                 Debug.Log("Successfully bootstrapped AtlasLoader.");
             }
-#nullable restore
         }
     }
 }

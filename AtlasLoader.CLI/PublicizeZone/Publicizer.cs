@@ -12,15 +12,15 @@ namespace AtlasLoader.CLI
         static ulong publicizedClasses = 0;
         static ulong publicizedProperties = 0;
 
-        static string? _input;
-        static string? _output;
+        static string _input;
+        static string _output;
 
         public static void Start(string[] args)
         {
             Helper.WriteVerbose("Switching to publicizer", System.ConsoleColor.Green);
 
             var baseArgs = Options.GetBaseModeOptions();
-            baseArgs.Handler = CommandHandler.Create<string, string?>((input, output) =>
+            baseArgs.Handler = CommandHandler.Create<string, string>((input, output) =>
             {
                 Helper.WriteVerbose($"Input: {input}", System.ConsoleColor.Yellow);
                 _input = input;
@@ -125,14 +125,14 @@ namespace AtlasLoader.CLI
                     if (!propery.GetMethod?.IsPublic ?? false)
                     {
                         Helper.WriteVerbose($"Publicizing setter of the property: {propery.FullName}");
-                        propery.GetMethod!.Access = MethodAttributes.Public;
+                        propery.GetMethod.Access = MethodAttributes.Public;
                         count = true;
                     }
 
                     if (!propery.SetMethod?.IsPublic ?? false)
                     {
                         Helper.WriteVerbose($"Publicizing getter of the property: {propery.FullName}");
-                        propery.SetMethod!.Access = MethodAttributes.Public;
+                        propery.SetMethod.Access = MethodAttributes.Public;
                         count = true;
                     }
 

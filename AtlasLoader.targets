@@ -7,8 +7,6 @@
 
 	<PropertyGroup>
         <Copyright>Copyright 2020 - $([System.DateTime]::Now.ToString("yyyy"))</Copyright>
-        <LangVersion>8.0</LangVersion>
-        <Nullable>enable</Nullable>
         <NoWarn>$(NoWarn);CS1573;CS1591</NoWarn>
         <WarningsAsErrors>true</WarningsAsErrors>
 

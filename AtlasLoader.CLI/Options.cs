@@ -28,7 +28,7 @@ namespace AtlasLoader.CLI
                 description: "Defines the working directory (current by default)")
                 { Required = false },
 
-                new Option<IEnumerable<string>?>("--dependencies",
+                new Option<IEnumerable<string>>("--dependencies",
                 description: "Defines the download dependencies that will be loaded")
                 { Required = false }
             };
