@@ -276,7 +276,7 @@ namespace AtlasLoader.CLI
                                 $"- End index: {info.EndIndex}{Environment.NewLine}");
                     break;
                 case PatcherMode.Patch:
-                    if (Info() is null)
+                    if (!(Info() is null))
                     {
                         Helper.WriteLine("Assembly is already patched.", ConsoleColor.Red);
                         Helper.Exit(ErrorCode.AlreadyPatched);
@@ -312,7 +312,7 @@ namespace AtlasLoader.CLI
 
                     break;
                 case PatcherMode.RePatch:
-                    if (Info() == null)
+                    if (Info() is null)
                     {
                         Helper.WriteLine("Assembly is not patched.", ConsoleColor.Red);
                         Helper.Exit(ErrorCode.NotPatched);
@@ -331,7 +331,7 @@ namespace AtlasLoader.CLI
 
                     break;
                 case PatcherMode.ForcePatch:
-                    if (Info() != null)
+                    if (!(Info() is null))
                     {
                         Helper.WriteLine("Assembly is already patched. Proceeding to wipe and patch.", ConsoleColor.Yellow);
                         Unpatch();
