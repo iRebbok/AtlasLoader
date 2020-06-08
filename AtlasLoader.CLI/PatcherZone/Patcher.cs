@@ -215,7 +215,7 @@ namespace AtlasLoader.CLI
 
         static string? _input;
         static string? _output;
-        static PatcherMode _mode;
+        static PatcherMode? _mode = null;
 
         public static void Start(string[] args)
         {
@@ -259,6 +259,9 @@ namespace AtlasLoader.CLI
 
             switch (_mode)
             {
+                default:
+                    Helper.WriteLine("Invalid patcher mode given", ConsoleColor.Red);
+                    break;
                 case PatcherMode.Info:
                     var info = Info();
                     if (info is null)
