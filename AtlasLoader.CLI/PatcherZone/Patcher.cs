@@ -370,6 +370,7 @@ namespace AtlasLoader.CLI
             EjectAllMembers(type, member => member.CustomAttributes.Any(x => x.AttributeType == ignoredAttribute));
 
             type.Module.Types.Remove(type);
+            type.Namespace = null;
             module.Types.Add(type);
 
             type.CustomAttributes.Add(new CustomAttribute(injectedAttributeCtor));
