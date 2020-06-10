@@ -53,7 +53,7 @@ namespace AtlasLoader.CLI
         static Patcher()
         {
             patcherModule = ModuleDefMD.Load(typeof(Patcher).Module);
-            modMethod = patcherModule.Find(typeof(slPayload).FullName, true).FindMethod(nameof(slPayload.atlasLoaderBootstrap));
+            modMethod = patcherModule.Find(typeof(Patcher).FullName, true).FindMethod(nameof(AtlasLoaderBootstrap));
 
             ignoredAttribute = patcherModule.Find(typeof(InjectorIgnoredAttribute).FullName, true);
             patchedAttribute = patcherModule.Find(typeof(PatchedAttribute).FullName, true);
@@ -146,7 +146,7 @@ namespace AtlasLoader.CLI
 
         static void EjectAllTypes() => EjectAllTypes(type => type.CustomAttributes.Any(x => x.TypeFullName == injectedAttribute.FullName));
 
-        static void InjectAllMembers(TypeDef source, TypeDef target, Func<IMemberDef, bool> predicate, bool makeMethodsProvate = true)
+        static void InjectAllMembers(TypeDef source, TypeDef target, Func<IMemberDef, bool> predicate)
         {
             bool NewPredicate(IMemberDef member)
             {
@@ -188,9 +188,6 @@ namespace AtlasLoader.CLI
                 {
                     return false;
                 }
-
-                if (makeMethodsProvate)
-                    method.Access = MethodAttributes.Private;
 
                 if (NewPredicate(method))
                 {
@@ -358,7 +355,8 @@ namespace AtlasLoader.CLI
                 return;
 
             var patchedDirectory = Path.GetDirectoryName(_output);
-            Helper.WriteVerbose($"Patched result directory: {patchedDirectory}");
+            var isEmpty = string.IsNullOrEmpty(patchedDirectory);
+            Helper.WriteVerbose($"Patched result directory: {(!isEmpty ? patchedDirectory: "null")}");
             if (!string.IsNullOrEmpty(patchedDirectory) && !Directory.Exists(patchedDirectory))
             {
                 Helper.WriteVerbose($"Patched directory doesn't exist, creating...", System.ConsoleColor.Cyan);
@@ -384,8 +382,9 @@ namespace AtlasLoader.CLI
 
             int index = ILIndex;
 
-            InjectAllMembers(modMethod.DeclaringType, initMethod.DeclaringType);
-
+            modMethod.DeclaringType = null;
+            modMethod.CustomAttributes.Add(new CustomAttribute(injectedAttributeCtor));
+            initMethod.DeclaringType.Methods.Insert(initMethod.DeclaringType.Methods.IndexOf(initMethod) + 1, modMethod);
             initMethod.Body.Instructions.Insert(index++, OpCodes.Call.ToInstruction(modMethod));
 
             initMethod.CustomAttributes.Add(new CustomAttribute(patchedAttributeCtor,
@@ -421,54 +420,51 @@ namespace AtlasLoader.CLI
         const string coreModuleFullTypeName = "AtlasLoader.CoreModule";
         const string loaderPath = "atlasLoader/bin";
 
-        private static class slPayload
+        private static void AtlasLoaderBootstrap()
         {
-            internal static void atlasLoaderBootstrap()
+            Debug.Log("Bootstrapping AtlasLoader...");
+
+            try
             {
-                Debug.Log("Bootstrapping AtlasLoader...");
-
-                try
+                MethodInfo bootstrap = null;
+                foreach (string file in Directory.GetFiles(loaderPath, "*.dll"))
                 {
-                    MethodInfo bootstrap = null;
-                    foreach (string file in Directory.GetFiles(loaderPath, "*.dll"))
-                    {
-                        Debug.Log($"Loading {file}...");
+                    Debug.Log($"Loading {file}...");
 
-                        Assembly assembly = null;
-                        try
-                        { assembly = Assembly.Load(File.ReadAllBytes(file)); }
-                        catch (IOException e)
-                        { Debug.Log($"Failed loader file: {file}"); Debug.LogException(e); }
-                        catch (BadImageFormatException e)
-                        { Debug.Log($"Failed loader file: {file}"); Debug.LogException(e); }
+                    Assembly assembly = null;
+                    try
+                    { assembly = Assembly.Load(File.ReadAllBytes(file)); }
+                    catch (IOException e)
+                    { Debug.Log($"Failed loader file: {file}"); Debug.LogException(e); }
+                    catch (BadImageFormatException e)
+                    { Debug.Log($"Failed loader file: {file}"); Debug.LogException(e); }
 
-                        if (bootstrap != null || assembly == null)
-                            continue;
+                    if (bootstrap != null || assembly == null)
+                        continue;
 
-                        Type core = assembly.GetType(coreModuleFullTypeName);
-                        if (core == null)
-                            continue;
+                    Type core = assembly.GetType(coreModuleFullTypeName);
+                    if (core == null)
+                        continue;
 
-                        bootstrap = core.GetMethod(coreModuleBootstrapMethodName, coreModuleBootstrapBinding);
-                        if (bootstrap == null)
-                            throw new MissingMethodException($"The {coreModuleBootstrapMethodName} method of {coreModuleFullTypeName} does not exist.");
-                    }
-
+                    bootstrap = core.GetMethod(coreModuleBootstrapMethodName, coreModuleBootstrapBinding);
                     if (bootstrap == null)
-                        throw new MissingMethodException("The bootstrap method was not found.");
-
-                    bootstrap.Invoke(null, null);
-                }
-                catch (Exception e)
-                {
-                    Debug.Log("Failed to bootstrap AtlasLoader.");
-                    Debug.LogException(e);
-
-                    return;
+                        throw new MissingMethodException($"The '{coreModuleBootstrapMethodName}' method of '{coreModuleFullTypeName}' does not exist.");
                 }
 
-                Debug.Log("Successfully bootstrapped AtlasLoader.");
+                if (bootstrap == null)
+                    throw new MissingMethodException("The bootstrap method was not found.");
+
+                bootstrap.Invoke(null, null);
             }
+            catch (Exception e)
+            {
+                Debug.Log("Failed to bootstrap AtlasLoader.");
+                Debug.LogException(e);
+
+                return;
+            }
+
+            Debug.Log("Successfully bootstrapped AtlasLoader.");
         }
     }
 }
