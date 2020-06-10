@@ -57,7 +57,9 @@ namespace AtlasLoader.CLI
 
             ignoredAttribute = patcherModule.Find(typeof(InjectorIgnoredAttribute).FullName, true);
             patchedAttribute = patcherModule.Find(typeof(PatchedAttribute).FullName, true);
+            patchedAttribute.Namespace = null;
             injectedAttribute = patcherModule.Find(typeof(InjectedAttribute).FullName, true);
+            injectedAttribute.Namespace = null;
 
             patchedAttributeCtor = patchedAttribute.FindMethod(ctor);
             injectedAttributeCtor = injectedAttribute.FindMethod(ctor);
@@ -370,7 +372,6 @@ namespace AtlasLoader.CLI
             EjectAllMembers(type, member => member.CustomAttributes.Any(x => x.AttributeType == ignoredAttribute));
 
             type.Module.Types.Remove(type);
-            type.Namespace = null;
             module.Types.Add(type);
 
             type.CustomAttributes.Add(new CustomAttribute(injectedAttributeCtor));
