@@ -23,7 +23,7 @@ namespace AtlasLoader
         /// <summary>
         /// 	The time format of the log times, used to name them.
         /// </summary>
-        public const string TimeFormat = "yyyy-MM-dd HH-mm-ss-fff";
+        public const string TimeFormat = "yyyy-MM-ddTHH-mm-ssZ";
 
         private static readonly StreamWriter MessageWriter;
         private static readonly Stack<LogMessage> MessageBuffer;
