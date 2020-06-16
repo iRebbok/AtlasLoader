@@ -69,7 +69,7 @@ namespace AtlasLoader.CLI
                 return;
             }
 
-            if (typeDef.IsNotPublic)
+            if (!typeDef.IsPublic || !typeDef.IsNestedPublic)
             {
                 Helper.WriteVerbose($"Publicizing class: {typeDef.FullName}");
                 typeDef.Visibility = typeDef.IsNestedPrivate ? TypeAttributes.NestedPublic : TypeAttributes.Public;
