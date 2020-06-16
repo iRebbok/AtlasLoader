@@ -7,7 +7,7 @@
 
 	<PropertyGroup>
         <Copyright>Copyright 2020 - $([System.DateTime]::Now.ToString("yyyy"))</Copyright>
-        <NoWarn>$(NoWarn);CS1573;CS1591</NoWarn>
+        <NoWarn>$(NoWarn);CS1573;CS1591;NU1701</NoWarn>
         <WarningsAsErrors>true</WarningsAsErrors>
 
         <!-- Disable automatic generation of version attribute -->
