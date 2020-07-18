@@ -1,7 +1,7 @@
 # AtlasLoader
 - Port from [Atlas](https://gitlab.com/AsheHat/atlas) old version of Patcher & Mod Loader for SCP: SL.
 
-## Sources
+## Credits
 
 ### Atlas
 - A .NET compile-time and run-time modification framework.
@@ -15,7 +15,7 @@
 **CoreRT doesn't support the dynamic library loading API, so a fully native patch will not work.**
 
 ### What is it for?
-**To load mods into SCP: SL, but mainly for [SMBootstrapper](https://gitlab.com/iRebbok/SMBootstrapper).**
+**To load mods into SCP: SL, but mainly for [SMBootstrapper](https://github.com/iRebbok/SMBootstrapper).**
 
 ### Support/docs?
 **No.**
