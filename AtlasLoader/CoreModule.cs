@@ -141,7 +141,8 @@ namespace AtlasLoader
             ModLoadInfo loadInfo = new ModLoadInfo(mainAttribute.Id, assembly.GetName().Version.ToString(),
                 modType.GetCustomAttribute<MetadataAttribute>() ?? new MetadataAttribute());
 
-            var ctor = modType.GetConstructor(new[] { typeof(ModLoadInfo) });
+            var ctor = modType.GetConstructor(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.CreateInstance,
+                null, new[] { typeof(ModLoadInfo) }, null);
             if (ctor is null)
                 throw new ArgumentException("Standard constructor not found.");
 
