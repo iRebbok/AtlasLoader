@@ -9,7 +9,7 @@ namespace AtlasLoader
     /// </summary>
     public static class CoreModule
     {
-        public const string VERSION = "1.0.0";
+        public const string VERSION = "1.0.1";
 
         /// <summary>
         ///     Relative path to the directory containing all of AtlasLoader.

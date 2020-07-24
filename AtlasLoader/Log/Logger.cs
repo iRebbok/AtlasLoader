@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.IO.Compression;
 
 namespace AtlasLoader
 {
@@ -26,59 +24,25 @@ namespace AtlasLoader
         public const string TimeFormat = "yyyy-MM-ddTHH-mm-ssZ";
 
         private static readonly StreamWriter MessageWriter;
-        private static readonly Stack<LogMessage> MessageBuffer;
+
+        public static DateTime StuckDate { get; }
 
         /// <summary>
         /// 	The path to the log file.
         /// </summary>
         public static string LogPath { get; }
 
-        /// <summary>
-        /// 	The past messages in order of most recent to least recent.
-        /// </summary>
-        public static IEnumerable<LogMessage> Messages => MessageBuffer;
-
-        /// <summary>
-        /// 	The count of <seealso cref="Messages"/>.
-        /// </summary>
-        public static int MessageCount => MessageBuffer.Count;
-
         static Logger()
         {
             if (!Directory.Exists(LogsDirectory))
                 Directory.CreateDirectory(LogsDirectory);
-            else
-                CompressLatest();
 
-            LogPath = GetFilePath(DateTime.Now);
+            StuckDate = DateTime.Now;
+            LogPath = GetFilePath(StuckDate);
             MessageWriter = new StreamWriter(new FileStream(LogPath, FileMode.CreateNew, FileAccess.Write, FileShare.Read))
             {
                 AutoFlush = true
             };
-            MessageBuffer = new Stack<LogMessage>(500);
-        }
-
-        private static void CompressLatest()
-        {
-            FileStream? latest = GetLatestUnlocked(out string? path);
-            if (latest is null)
-                return;
-
-            using (latest)
-            {
-                AtlasDebug(nameof(Logger), "Compressing previous log file: " + path);
-
-                using (latest)
-                using (FileStream compressed = new FileStream(GetFilePath(File.GetCreationTime(path)) + ".gz", FileMode.Create, FileAccess.Write, FileShare.None))
-                using (GZipStream zip = new GZipStream(compressed, CompressionLevel.Optimal))
-                {
-                    latest.CopyTo(zip);
-                }
-            }
-
-            File.Delete(path);
-
-            AtlasDebug(nameof(Logger), "Compressed log file: " + path);
         }
 
         private static string GetFilePath(DateTime time)
@@ -86,40 +50,7 @@ namespace AtlasLoader
             return LogsDirectory + time.ToString(TimeFormat) + "." + FileExtension;
         }
 
-        private static FileStream? GetLatestUnlocked(out string? path)
-        {
-            foreach (string file in Directory.EnumerateFiles(LogsDirectory, "*." + FileExtension))
-            {
-                try
-                {
-                    FileStream stream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.None);
-
-                    path = file;
-                    return stream;
-                }
-                catch (IOException)
-                {
-                    // Locked.
-                }
-            }
-
-            path = null;
-            return null;
-        }
-
-        private static void Log(LogSeverity logSeverity, string source, string message) => LogEvent(LogSilent(logSeverity, source, message));
-
-        private static void LogEvent(LogMessage data)
-        {
-            try
-            {
-                Invoked?.Invoke(data);
-            }
-            catch (Exception e)
-            {
-                LogSilent(LogSeverity.Error, nameof(Logger), $"Error while running the log event:{Environment.NewLine}{e}");
-            }
-        }
+        private static void Log(LogSeverity logSeverity, string source, string message) => LogSilent(logSeverity, source, message);
 
         private static void LogGuards(string source, string message)
         {
@@ -137,10 +68,7 @@ namespace AtlasLoader
         private static LogMessage LogSilent(LogSeverity logSeverity, string source, string message)
         {
             LogMessage data = new LogMessage(logSeverity, source, message);
-
-            MessageWriter?.WriteLine(data.ToString());
-            MessageBuffer?.Push(data);
-
+            MessageWriter.WriteLine(data.ToString());
             return data;
         }
 
@@ -153,11 +81,7 @@ namespace AtlasLoader
         public static void AtlasDebug(string source, string message)
         {
             LogGuards(source, message);
-
-            LogMessage data = LogSilent(LogSeverity.Debug, source, message);
-
-            // Getting rid of the settings in the form .json and log debug by default
-            LogEvent(data);
+            LogSilent(LogSeverity.Debug, source, message);
         }
 
         /// <summary>
@@ -169,7 +93,6 @@ namespace AtlasLoader
         public static void Debug(string source, string message)
         {
             LogGuards(source, message);
-
             Log(LogSeverity.Debug, source, message);
         }
 
@@ -182,7 +105,6 @@ namespace AtlasLoader
         public static void Error(string source, string message)
         {
             LogGuards(source, message);
-
             Log(LogSeverity.Error, source, message);
         }
 
@@ -195,7 +117,6 @@ namespace AtlasLoader
         public static void ErrorSilent(string source, string message)
         {
             LogGuards(source, message);
-
             LogSilent(LogSeverity.Error, source, message);
         }
 
@@ -208,7 +129,6 @@ namespace AtlasLoader
         public static void Info(string source, string message)
         {
             LogGuards(source, message);
-
             Log(LogSeverity.Info, source, message);
         }
 
@@ -221,7 +141,6 @@ namespace AtlasLoader
         public static void InfoSilent(string source, string message)
         {
             LogGuards(source, message);
-
             LogSilent(LogSeverity.Info, source, message);
         }
 
@@ -234,7 +153,6 @@ namespace AtlasLoader
         public static void Warning(string source, string message)
         {
             LogGuards(source, message);
-
             Log(LogSeverity.Warning, source, message);
         }
 
@@ -247,13 +165,7 @@ namespace AtlasLoader
         public static void WarningSilent(string source, string message)
         {
             LogGuards(source, message);
-
             LogSilent(LogSeverity.Warning, source, message);
         }
-
-        /// <summary>
-        ///     Fired when a message is logged.
-        /// </summary>
-        public static event Action<LogMessage>? Invoked;
     }
 }

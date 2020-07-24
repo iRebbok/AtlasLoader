@@ -9,8 +9,6 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
-using MethodAttributes = dnlib.DotNet.MethodAttributes;
-
 namespace AtlasLoader.CLI
 {
     public enum PatcherMode
@@ -212,9 +210,6 @@ namespace AtlasLoader.CLI
             });
         }
 
-        static void InjectAllMembers(TypeDef source, TypeDef target) =>
-            InjectAllMembers(source, target, member => member.CustomAttributes.All(x => x.AttributeType != ignoredAttribute));
-
         #endregion
 
         static string _input;
@@ -358,7 +353,7 @@ namespace AtlasLoader.CLI
 
             var patchedDirectory = Path.GetDirectoryName(_output);
             var isEmpty = string.IsNullOrEmpty(patchedDirectory);
-            Helper.WriteVerbose($"Patched result directory: {(!isEmpty ? patchedDirectory: "null")}");
+            Helper.WriteVerbose($"Patched result directory: {(!isEmpty ? patchedDirectory : "null")}");
             if (!string.IsNullOrEmpty(patchedDirectory) && !Directory.Exists(patchedDirectory))
             {
                 Helper.WriteVerbose($"Patched directory doesn't exist, creating...", System.ConsoleColor.Cyan);
@@ -417,7 +412,7 @@ namespace AtlasLoader.CLI
 
         static PatchedAttribute Info() => PatchedAttribute.Create(initMethod.CustomAttributes.FirstOrDefault(x => x.TypeFullName == patchedAttribute.FullName));
 
-        const BindingFlags coreModuleBootstrapBinding = BindingFlags.NonPublic | BindingFlags.Static;
+        const BindingFlags coreModuleBootstrapBinding = BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.InvokeMethod;
         const string coreModuleBootstrapMethodName = "Initializer";
         const string coreModuleFullTypeName = "AtlasLoader.CoreModule";
         const string loaderPath = "atlasLoader/bin";
@@ -429,16 +424,15 @@ namespace AtlasLoader.CLI
             try
             {
                 MethodInfo bootstrap = null;
-                foreach (string file in Directory.GetFiles(loaderPath, "*.dll"))
+                var path = Path.GetFullPath(loaderPath);
+                foreach (string file in Directory.GetFiles(path, "*.dll"))
                 {
                     Debug.Log($"Loading {file}...");
 
                     Assembly assembly = null;
                     try
                     { assembly = Assembly.Load(File.ReadAllBytes(file)); }
-                    catch (IOException e)
-                    { Debug.Log($"Failed loader file: {file}"); Debug.LogException(e); }
-                    catch (BadImageFormatException e)
+                    catch (Exception e)
                     { Debug.Log($"Failed loader file: {file}"); Debug.LogException(e); }
 
                     if (bootstrap != null || assembly == null)
@@ -456,7 +450,7 @@ namespace AtlasLoader.CLI
                 if (bootstrap == null)
                     throw new MissingMethodException("The bootstrap method was not found.");
 
-                bootstrap.Invoke(null, null);
+                bootstrap.Invoke(null, new[] { Directory.GetCurrentDirectory(), path });
             }
             catch (Exception e)
             {
