@@ -38,12 +38,14 @@ namespace AtlasLoader.CLI
         private static async Task Main() =>
             await GlobalOptions.Parse(Environment.GetCommandLineArgs()).ConfigureAwait(false);
 
-        internal static async Task Main(GlobalOptions options)
+        internal static async Task Start(GlobalOptions options)
         {
             if (options is null)
             {
                 Helper.WriteLine("Invalid arguments");
                 await GlobalOptions.Parse(new[] { "--help" }).ConfigureAwait(false);
+                Helper.needExit = true;
+                Helper.Exit(ErrorCode.InvalidArguments);
             }
 
             Helper.needVerbose = options.Verbose;

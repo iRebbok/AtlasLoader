@@ -11,21 +11,21 @@ namespace AtlasLoader.CLI
         {
             new Option<WorkMode>("--work-mode",
                 description: "Defines what the CLI will use")
-            { Required = true },
+            { IsRequired = true },
 
             new Option<bool>("--exit",
                 getDefaultValue: () => false,
                 description: "Determines whether to wait for the button to be clicked before exiting")
-            { Required = false },
+            { IsRequired = false },
 
             new Option<bool>("--verbose",
                 getDefaultValue: () => false,
                 description: "Defines the debugging of each step")
-            { Required = false },
+            { IsRequired = false },
 
             new Option<DirectoryInfo>("--path",
                 description: "Defines the working directory (current by default)")
-            { Required = false },
+            { IsRequired = false },
         };
 
         static GlobalOptions()
@@ -33,22 +33,14 @@ namespace AtlasLoader.CLI
             RootCommand.TreatUnmatchedTokensAsErrors = false;
         }
 
-        public readonly WorkMode Mode;
-        public readonly bool Exit;
-        public readonly bool Verbose;
-        public readonly DirectoryInfo Path;
-
-        public GlobalOptions(WorkMode mode, bool exit, bool verbose, DirectoryInfo path)
-        {
-            Mode = mode;
-            Exit = exit;
-            Verbose = verbose;
-            Path = path;
-        }
+        public WorkMode Mode { get; set; }
+        public bool Exit { get; set; }
+        public bool Verbose { get; set; }
+        public DirectoryInfo Path { get; set; }
 
         public static async Task Parse(string[] args)
         {
-            RootCommand.Handler = CommandHandler.Create<GlobalOptions>(async options => await Program.Main(options).ConfigureAwait(false));
+            RootCommand.Handler = CommandHandler.Create<GlobalOptions>(async options => await Program.Start(options).ConfigureAwait(false));
             await RootCommand.InvokeAsync(args).ConfigureAwait(false);
         }
     }
@@ -61,12 +53,12 @@ namespace AtlasLoader.CLI
                 new[] { "-i", "--input" },
                 getDefaultValue: () => "Assembly-CSharp.dll",
                 description: "Defines the path and name of the dll to be used")
-            { Required = false },
+            { IsRequired = false },
 
             new Option<string>(
                 new[] { "-o", "--output" },
                 description: "Defines the path and name of the dll that will be output")
-            { Required = false }
+            { IsRequired = false }
         };
 
         static ModeOptions()
@@ -74,14 +66,8 @@ namespace AtlasLoader.CLI
             RootCommand.TreatUnmatchedTokensAsErrors = false;
         }
 
-        public readonly string Input;
-        public readonly string Output;
-
-        public ModeOptions(string input, string output)
-        {
-            Input = input;
-            Output = output;
-        }
+        public string Input { get; set; }
+        public string Output { get; set; }
 
         public static async Task Parse(GlobalOptions goptions, string[] args)
         {
@@ -100,7 +86,7 @@ namespace AtlasLoader.CLI
                 "--patcher-mode",
                 getDefaultValue: () => PatcherMode.Patch,
                 description: "Defines the patch mode to will be used")
-            { Required = false }
+            { IsRequired = false }
         };
 
         static PatcherOptions()
@@ -108,12 +94,7 @@ namespace AtlasLoader.CLI
             RootCommand.TreatUnmatchedTokensAsErrors = false;
         }
 
-        public readonly PatcherMode Mode;
-
-        public PatcherOptions(string input, string output, PatcherMode mode) : base(input, output)
-        {
-            Mode = mode;
-        }
+        public PatcherMode Mode { get; set; }
 
         public static new async Task Parse(GlobalOptions goptions, string[] args)
         {

@@ -12,7 +12,7 @@
 
     <ItemGroup>
       <PackageReference Include="dnlib" Version="3.3.2" />
-      <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20303.1" />
+      <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20371.2" />
       <!-- Yes I know, but I just need Logs -->
       <PackageReference Include="Unity3D.UnityEngine" Version="2018.3.5.1" />
     </ItemGroup>
