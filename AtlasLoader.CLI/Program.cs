@@ -1,10 +1,6 @@
 using System;
-using System.Collections.Generic;
-using System.CommandLine;
-using System.CommandLine.Invocation;
 using System.IO;
-using System.Linq;
-using System.Reflection;
+using System.Threading.Tasks;
 
 namespace AtlasLoader.CLI
 {
@@ -37,93 +33,48 @@ namespace AtlasLoader.CLI
         Patcher
     }
 
-    class Program
+    internal static class Program
     {
-        static WorkMode? _workMode = null;
+        private static async Task Main() =>
+            await GlobalOptions.Parse(Environment.GetCommandLineArgs()).ConfigureAwait(false);
 
-        static void Main()
+        internal static async Task Main(GlobalOptions options)
         {
-            var args = Environment.GetCommandLineArgs();
-
-            // Args cannot be empty
-            if (args.Length == 0)
+            if (options is null)
             {
-                Helper.WriteLine("Invalid arguments.", ConsoleColor.Red);
-                Helper.Exit(ErrorCode.InvalidArguments);
+                Helper.WriteLine("Invalid arguments");
+                await GlobalOptions.Parse(new[] { "--help" }).ConfigureAwait(false);
             }
 
-            var globalArgs = Options.GetGobalOptions();
-            globalArgs.Handler = CommandHandler.Create<string, bool, bool, DirectoryInfo, IEnumerable<string>>((workMode, exit, verbose, path, dependencies) =>
+            Helper.needVerbose = options.Verbose;
+            Helper.WriteVerbose("Verbose activated", ConsoleColor.Magenta);
+            Helper.WriteVerbose($"Work mode: {options.Mode}", ConsoleColor.Yellow);
+            Helper.needExit = options.Exit;
+            Helper.WriteVerbose($"Need exit: {options.Exit}", ConsoleColor.Yellow);
+            Helper.WriteVerbose($"Working directory: {(!(options.Path is null) ? options.Path.FullName : "null")}", ConsoleColor.Yellow);
+            Helper.WriteVerbose($"Working directory exist: {options.Path?.Exists.ToString() ?? "null"}", ConsoleColor.Yellow);
+            if (!(options.Path is null) && options.Path.Exists)
             {
-                Helper.needVerbose = verbose;
-                Helper.WriteVerbose("Verbose activated", ConsoleColor.Magenta);
+                Helper.WriteVerbose($"Setting working directory: {options.Path.FullName}", ConsoleColor.Yellow);
+                Directory.SetCurrentDirectory(options.Path.FullName);
+            }
 
-                Helper.WriteVerbose($"Source workMode: {workMode}", ConsoleColor.Yellow);
-                _workMode = Enum.Parse<WorkMode>(workMode, true);
-                Helper.WriteVerbose($"Parsed workMode: {_workMode} ({(int) _workMode})", ConsoleColor.Yellow);
-                Helper.needExit = exit;
-                Helper.WriteVerbose($"Need exit: {exit}", ConsoleColor.Yellow);
-
-                Helper.WriteVerbose($"Working directory: {(!(path is null) ? path.FullName : "null")}", ConsoleColor.Yellow);
-                Helper.WriteVerbose($"Working directory exist: {path?.Exists.ToString() ?? "null"}", ConsoleColor.Yellow);
-                if (!(path is null) && path.Exists)
-                {
-                    Helper.WriteVerbose($"Setting working directory: {path.FullName}", ConsoleColor.Yellow);
-                    Directory.SetCurrentDirectory(path.FullName);
-                }
-                if (dependencies is null)
-                    Helper.WriteVerbose($"None dependencies", ConsoleColor.Yellow);
-                else
-                {
-                    Helper.WriteVerbose($"Dependencies: {string.Join(", ", dependencies)}");
-                    LocalDependencies(dependencies);
-                }
-            });
-
-            globalArgs.Invoke(args);
-
-            switch (_workMode)
+            switch (options.Mode)
             {
                 case WorkMode.Patcher:
-                    Patcher.Start(args);
+                    await Patcher.Start(options).ConfigureAwait(false);
                     break;
                 case WorkMode.Publicizer:
-                    Publicizer.Start(args);
+                    await Publicizer.Start(options).ConfigureAwait(false);
                     break;
                 default:
                     Helper.WriteLine("Invalid work mode given", ConsoleColor.Red);
+                    Helper.Exit(ErrorCode.InvalidMode);
                     break;
             }
 
             // Thus we allow the waiting
             Helper.Exit(ErrorCode.None);
-        }
-
-        static void LocalDependencies(IEnumerable<string> dependencies)
-        {
-            foreach (string dependency in dependencies)
-            {
-                string fullDependency = Path.GetFullPath(dependency);
-                Helper.WriteVerbose($"Dependency full path: {fullDependency}");
-                if (File.Exists(fullDependency))
-                {
-                    Helper.WriteVerbose("Dependency exist");
-                    Assembly.Load(File.ReadAllBytes(fullDependency));
-                }
-                else if (Directory.Exists(fullDependency))
-                {
-                    Helper.WriteVerbose("Dependency is a folder");
-                    Dictionary<string, Assembly> nameAssemblies = Directory.GetFiles(fullDependency, "*.dll").Select(x => Assembly.Load(File.ReadAllBytes(x)))
-                        .ToDictionary(x => x.GetName().FullName, x => x);
-                    AppDomain.CurrentDomain.AssemblyResolve += (sender, eventArgs) => nameAssemblies.TryGetValue(eventArgs.Name, out Assembly assembly) ? assembly : null;
-                }
-                else
-                {
-                    Helper.WriteVerbose("Dependency doesn't exist");
-                    Helper.WriteLine($"Invalid dependency: \"{dependency}\"");
-                    Helper.Exit(ErrorCode.InvalidDependency);
-                }
-            }
         }
     }
 }

@@ -7,6 +7,7 @@ using System.CommandLine.Invocation;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace AtlasLoader.CLI
@@ -212,28 +213,18 @@ namespace AtlasLoader.CLI
 
         #endregion
 
-        static string _input;
-        static string _output;
-        static PatcherMode? _mode = null;
+        public static async Task Start(GlobalOptions options) =>
+            await PatcherOptions.Parse(options, Environment.GetCommandLineArgs()).ConfigureAwait(false);
 
-        public static void Start(string[] args)
+        internal static void Main(GlobalOptions options, PatcherOptions patcherOptions)
         {
-            var baseArgs = Options.GetPatcherOptions();
-            baseArgs.Handler = CommandHandler.Create<string, string, string>((input, output, patcherMode) =>
-            {
-                Helper.WriteVerbose($"Written pather mode: {patcherMode}");
-                _mode = Enum.Parse<PatcherMode>(patcherMode, true);
-                Helper.WriteVerbose($"Final pather mode: {_mode} ({(int) _mode})");
-                Helper.WriteVerbose($"Input: {input}", ConsoleColor.Yellow);
-                _input = input;
-                Helper.WriteVerbose($"Written output: {output}", ConsoleColor.Yellow);
-                _output = !string.IsNullOrEmpty(output) ? output : $"{Path.GetFileNameWithoutExtension(input)}{Path.GetExtension(input)}";
-                Helper.WriteVerbose($"Final output: {_output}", ConsoleColor.Yellow);
-            });
+            Helper.WriteVerbose($"Written pather mode: {patcherOptions.Mode}");
+            Helper.WriteVerbose($"Input: {patcherOptions.Input}", ConsoleColor.Yellow);
+            Helper.WriteVerbose($"Written output: {patcherOptions.Output}", ConsoleColor.Yellow);
+            var output = !string.IsNullOrEmpty(patcherOptions.Output) ? patcherOptions.Output : patcherOptions.Input;
+            Helper.WriteVerbose($"Final output: {patcherOptions.Output}", ConsoleColor.Yellow);
 
-            baseArgs.Invoke(args);
-
-            var assembly = Helper.ReadAssembly(_input);
+            var assembly = Helper.ReadAssembly(patcherOptions.Input);
 
             Helper.WriteVerbose("Loading assembly as module");
             module = ModuleDefMD.Load(assembly);
@@ -256,7 +247,24 @@ namespace AtlasLoader.CLI
 
             initMethod = method;
 
-            switch (_mode)
+            ProcessMode(options, patcherOptions);
+            if (patcherOptions.Mode == PatcherMode.Info)
+                return;
+
+            var patchedDirectory = Path.GetDirectoryName(output);
+            var isEmpty = string.IsNullOrEmpty(patchedDirectory);
+            Helper.WriteVerbose($"Patched result directory: {(!isEmpty ? patchedDirectory : "null")}");
+            if (!string.IsNullOrEmpty(patchedDirectory) && !Directory.Exists(patchedDirectory))
+            {
+                Helper.WriteVerbose("Patched directory doesn't exist, creating...", ConsoleColor.Cyan);
+                Directory.CreateDirectory(patchedDirectory);
+            }
+            module.Write(output);
+        }
+
+        private static void ProcessMode(GlobalOptions options, PatcherOptions patcherOptions)
+        {
+            switch (patcherOptions.Mode)
             {
                 default:
                     Helper.WriteLine("Invalid patcher mode given", ConsoleColor.Red);
@@ -273,7 +281,7 @@ namespace AtlasLoader.CLI
                     Helper.WriteLine($"- Version: {info.Version}{Environment.NewLine}" +
                                 $"- Start index: {info.StartIndex}{Environment.NewLine}" +
                                 $"- End index: {info.EndIndex}{Environment.NewLine}");
-                    break;
+                    return;
                 case PatcherMode.Patch:
                     if (!(Info() is null))
                     {
@@ -347,19 +355,6 @@ namespace AtlasLoader.CLI
                     }
                     break;
             }
-
-            if (_mode == PatcherMode.Info)
-                return;
-
-            var patchedDirectory = Path.GetDirectoryName(_output);
-            var isEmpty = string.IsNullOrEmpty(patchedDirectory);
-            Helper.WriteVerbose($"Patched result directory: {(!isEmpty ? patchedDirectory : "null")}");
-            if (!string.IsNullOrEmpty(patchedDirectory) && !Directory.Exists(patchedDirectory))
-            {
-                Helper.WriteVerbose($"Patched directory doesn't exist, creating...", System.ConsoleColor.Cyan);
-                Directory.CreateDirectory(patchedDirectory);
-            }
-            module.Write(_output);
         }
 
         static void Inject(TypeDef type)

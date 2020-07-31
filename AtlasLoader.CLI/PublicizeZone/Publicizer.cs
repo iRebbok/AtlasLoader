@@ -1,7 +1,7 @@
 using dnlib.DotNet;
-using System.CommandLine;
-using System.CommandLine.Invocation;
+using System;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace AtlasLoader.CLI
 {
@@ -12,26 +12,19 @@ namespace AtlasLoader.CLI
         static ulong publicizedClasses = 0;
         static ulong publicizedProperties = 0;
 
-        static string _input;
-        static string _output;
+        public static async Task Start(GlobalOptions options) =>
+            await ModeOptions.Parse(options, Environment.GetCommandLineArgs()).ConfigureAwait(false);
 
-        public static void Start(string[] args)
+        internal static void Main(GlobalOptions options, ModeOptions modeOptions)
         {
-            Helper.WriteVerbose("Switching to publicizer", System.ConsoleColor.Green);
+            Helper.WriteVerbose("Switching to publicizer", ConsoleColor.Green);
 
-            var baseArgs = Options.GetBaseModeOptions();
-            baseArgs.Handler = CommandHandler.Create<string, string>((input, output) =>
-            {
-                Helper.WriteVerbose($"Input: {input}", System.ConsoleColor.Yellow);
-                _input = input;
-                Helper.WriteVerbose($"Written output: {output}", System.ConsoleColor.Yellow);
-                _output = !string.IsNullOrEmpty(output) ? output : $"{Path.GetFileNameWithoutExtension(input)}_publicized{Path.GetExtension(input)}";
-                Helper.WriteVerbose($"Final output: {_output}", System.ConsoleColor.Yellow);
-            });
+            Helper.WriteVerbose($"Input: {modeOptions.Input}", ConsoleColor.Yellow);
+            Helper.WriteVerbose($"Written output: {modeOptions.Output}", ConsoleColor.Yellow);
+            var output = !string.IsNullOrEmpty(modeOptions.Output) ? modeOptions.Output : $"{Path.GetFileNameWithoutExtension(modeOptions.Input)}_publicized{Path.GetExtension(modeOptions.Input)}";
+            Helper.WriteVerbose($"Final output: {output}", ConsoleColor.Yellow);
 
-            baseArgs.Invoke(args);
-
-            var assembly = Helper.ReadAssembly(_input);
+            var assembly = Helper.ReadAssembly(modeOptions.Input);
 
             Helper.WriteVerbose("Loading assembly as module");
             var module = ModuleDefMD.Load(assembly);
@@ -40,7 +33,7 @@ namespace AtlasLoader.CLI
                 Publicize(type);
             Helper.WriteVerbose("Finalize publicizing");
 
-            var publicizedDirectory = Path.GetDirectoryName(_output);
+            var publicizedDirectory = Path.GetDirectoryName(output);
             Helper.WriteVerbose($"Publicized result directory: {publicizedDirectory}");
             if (!string.IsNullOrEmpty(publicizedDirectory) && !Directory.Exists(publicizedDirectory))
             {
@@ -56,16 +49,16 @@ namespace AtlasLoader.CLI
                 $"Publicized fields: {publicizedFields}",
                 $"Publicized properties: {publicizedProperties}"
             }), System.ConsoleColor.Magenta);
-            Helper.WriteVerbose($"Writing publicized assembly to path: {_output}");
+            Helper.WriteVerbose($"Writing publicized assembly to path: {output}");
 
-            module.Write(_output);
+            module.Write(output);
         }
 
         static void Publicize(TypeDef typeDef)
         {
             if (typeDef is null)
             {
-                Helper.WriteVerbose($"Skipping nullable typedef");
+                Helper.WriteVerbose("Skipping nullable typedef");
                 return;
             }
 
