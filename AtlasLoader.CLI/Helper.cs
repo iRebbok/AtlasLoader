@@ -5,8 +5,6 @@ namespace AtlasLoader.CLI
 {
     public static class Helper
     {
-        public const string Version = "1.0.0";
-
         public static bool needExit = false;
         public static bool needVerbose = false;
 
