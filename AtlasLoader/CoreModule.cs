@@ -26,8 +26,12 @@ namespace AtlasLoader
         /// </summary>
         public static bool Initialized { get; private set; }
 
+        public static string? GamePath { get; private set; }
+
+        public static string? BinPath { get; private set; }
+
         /* <---------- Will be called from the assembly ----------> */
-        static void Initializer()
+        static void Initializer(string gamePath, string binPath)
         {
             if (Initialized)
             {
@@ -35,6 +39,9 @@ namespace AtlasLoader
             }
 
             Initialized = true;
+
+            GamePath = gamePath;
+            BinPath = binPath;
 
             try
             {
