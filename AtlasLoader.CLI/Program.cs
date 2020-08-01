@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace AtlasLoader.CLI
@@ -35,8 +36,11 @@ namespace AtlasLoader.CLI
 
     internal static class Program
     {
-        private static async Task Main() =>
+        private static async Task Main()
+        {
+            Console.OutputEncoding = new UTF8Encoding(false, false);
             await GlobalOptions.Parse(Environment.GetCommandLineArgs()).ConfigureAwait(false);
+        }
 
         internal static async Task Start(GlobalOptions options)
         {
